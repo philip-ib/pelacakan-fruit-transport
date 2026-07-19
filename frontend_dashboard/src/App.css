@@ -1,0 +1,98 @@
+/* === Reset & Base === */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  background: #f0f4f0;
+  color: #333;
+  min-height: 100vh;
+}
+
+/* === App Layout === */
+.app { max-width: 1200px; margin: 0 auto; padding: 24px 16px; }
+
+.app-header {
+  text-align: center;
+  margin-bottom: 24px;
+}
+.app-header h1 {
+  font-size: 26px;
+  color: #2e7d32;
+}
+.app-header .subtitle {
+  font-size: 14px;
+  color: #888;
+}
+
+.app-main {
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+  overflow: hidden;
+}
+
+/* === States === */
+.state-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 64px 24px;
+  color: #888;
+  gap: 12px;
+}
+.state-box .icon-big { font-size: 48px; }
+.error-text { color: #d32f2f; font-size: 14px; text-align: center; }
+
+/* === Spinner === */
+.spinner {
+  width: 36px; height: 36px;
+  border: 4px solid #e0e0e0;
+  border-top-color: #2e7d32;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* === Table === */
+.table-wrapper { overflow-x: auto; }
+
+table { width: 100%; border-collapse: collapse; font-size: 13px; }
+
+thead { background: #e8f5e9; }
+th {
+  padding: 12px 14px;
+  text-align: left;
+  font-weight: 700;
+  color: #1b5e20;
+  white-space: nowrap;
+}
+
+td { padding: 10px 14px; border-bottom: 1px solid #f0f0f0; white-space: nowrap; }
+
+tbody tr:hover { background: #fafafa; }
+
+.action-cell {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+
+/* === Buttons === */
+.btn {
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 600;
+  transition: opacity 0.2s;
+}
+.btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.btn-green { background: #2e7d32; color: #fff; }
+.btn-green:hover:not(:disabled) { background: #1b5e20; }
+
+.btn-danger { background: transparent; color: #d32f2f; }
+.btn-danger:hover:not(:disabled) { background: #ffebee; }
+
+.btn-sm { padding: 6px 12px; }
+.btn-icon { padding: 6px 8px; font-size: 16px; }
