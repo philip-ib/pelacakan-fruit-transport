@@ -20,6 +20,3 @@ dist/
 # OS
 .DS_Store
 Thumbs.db
-
-# Flutter Web
-frontend_dashboard_old/
