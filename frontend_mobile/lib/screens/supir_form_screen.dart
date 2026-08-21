@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../services/api_service.dart';
+import '../widgets/form_text_field.dart';
+import '../widgets/result_dialog.dart';
 
 /// Halaman form input data pengangkutan oleh Supir di TPH.
 class SupirFormScreen extends StatefulWidget {
@@ -45,41 +47,33 @@ class _SupirFormScreenState extends State<SupirFormScreen> {
     if (!mounted) return;
 
     if (result['success'] == true) {
-      // Tampilkan dialog sukses
-      showDialog(
-        context: context,
-        builder: (_) => AlertDialog(
-          icon: const Icon(Icons.check_circle, color: Colors.green, size: 48),
-          title: const Text('Berhasil'),
-          content: Text(result['message'] ?? 'Data berhasil dikirim.'),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-                _resetForm();
-              },
-              child: const Text('OK'),
-            ),
-          ],
-        ),
+      _showResultDialog(
+        success: true,
+        message: result['message'] ?? 'Data berhasil dikirim.',
+        onOk: _resetForm,
       );
     } else {
-      // Tampilkan dialog error
-      showDialog(
-        context: context,
-        builder: (_) => AlertDialog(
-          icon: const Icon(Icons.error, color: Colors.red, size: 48),
-          title: const Text('Gagal'),
-          content: Text(result['message'] ?? 'Terjadi kesalahan.'),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(),
-              child: const Text('OK'),
-            ),
-          ],
-        ),
+      _showResultDialog(
+        success: false,
+        message: result['message'] ?? 'Terjadi kesalahan.',
       );
     }
+  }
+
+  void _showResultDialog({
+    required bool success,
+    required String message,
+    VoidCallback? onOk,
+  }) {
+    showDialog(
+      context: context,
+      builder: (_) => ResultDialog(
+        success: success,
+        title: success ? 'Berhasil' : 'Gagal',
+        message: message,
+        onOk: onOk,
+      ),
+    );
   }
 
   void _resetForm() {
@@ -123,59 +117,41 @@ class _SupirFormScreenState extends State<SupirFormScreen> {
               const SizedBox(height: 32),
 
               // --- Nomor Truk ---
-              TextFormField(
+              FormTextField(
                 controller: _nomorTrukController,
+                labelText: 'Nomor Truk',
+                hintText: 'Contoh: BK 1234 AB',
+                prefixIcon: Icons.directions_bus,
+                emptyErrorMessage: 'Nomor truk tidak boleh kosong',
                 textInputAction: TextInputAction.next,
                 textCapitalization: TextCapitalization.characters,
-                decoration: const InputDecoration(
-                  labelText: 'Nomor Truk',
-                  hintText: 'Contoh: BK 1234 AB',
-                  prefixIcon: Icon(Icons.directions_bus),
-                  border: OutlineInputBorder(),
-                ),
-                validator: (value) {
-                  if (value == null || value.trim().isEmpty) {
-                    return 'Nomor truk tidak boleh kosong';
-                  }
-                  return null;
-                },
               ),
               const SizedBox(height: 16),
 
               // --- ID TPH ---
-              TextFormField(
+              FormTextField(
                 controller: _idTphController,
+                labelText: 'ID TPH',
+                hintText: 'Contoh: TPH-A01',
+                prefixIcon: Icons.place,
+                emptyErrorMessage: 'ID TPH tidak boleh kosong',
                 textInputAction: TextInputAction.next,
                 textCapitalization: TextCapitalization.characters,
-                decoration: const InputDecoration(
-                  labelText: 'ID TPH',
-                  hintText: 'Contoh: TPH-A01',
-                  prefixIcon: Icon(Icons.place),
-                  border: OutlineInputBorder(),
-                ),
-                validator: (value) {
-                  if (value == null || value.trim().isEmpty) {
-                    return 'ID TPH tidak boleh kosong';
-                  }
-                  return null;
-                },
               ),
               const SizedBox(height: 16),
 
               // --- Berat Estimasi ---
-              TextFormField(
+              FormTextField(
                 controller: _beratEstimasiController,
+                labelText: 'Berat Estimasi (Ton)',
+                hintText: 'Contoh: 2.5',
+                prefixIcon: Icons.scale,
+                emptyErrorMessage: 'Berat estimasi tidak boleh kosong',
                 textInputAction: TextInputAction.done,
                 keyboardType: const TextInputType.numberWithOptions(decimal: true),
                 inputFormatters: [
                   FilteringTextInputFormatter.allow(RegExp(r'[\d.]')),
                 ],
-                decoration: const InputDecoration(
-                  labelText: 'Berat Estimasi (Ton)',
-                  hintText: 'Contoh: 2.5',
-                  prefixIcon: Icon(Icons.scale),
-                  border: OutlineInputBorder(),
-                ),
                 validator: (value) {
                   if (value == null || value.trim().isEmpty) {
                     return 'Berat estimasi tidak boleh kosong';

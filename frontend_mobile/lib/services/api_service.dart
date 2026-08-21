@@ -38,13 +38,7 @@ class ApiService {
         body: body,
       );
 
-      final decoded = jsonDecode(response.body) as Map<String, dynamic>;
-
-      return {
-        'success': decoded['success'] == true,
-        'message': decoded['message'] as String?,
-        'data': decoded['data'] as Map<String, dynamic>?,
-      };
+      return _parseResponse(response);
     } catch (e) {
       return {
         'success': false,
@@ -52,5 +46,30 @@ class ApiService {
         'data': null,
       };
     }
+  }
+
+  /// Mengurai response HTTP menjadi Map standar {success, message, data}.
+  Future<Map<String, dynamic>> _parseResponse(http.Response response) async {
+    Map<String, dynamic>? decoded;
+    try {
+      decoded = jsonDecode(response.body) as Map<String, dynamic>;
+    } on FormatException {
+      decoded = null;
+    }
+
+    if (decoded != null && response.statusCode < 400) {
+      return {
+        'success': decoded['success'] == true,
+        'message': decoded['message'] as String?,
+        'data': decoded['data'] as Map<String, dynamic>?,
+      };
+    }
+
+    return {
+      'success': false,
+      'message': decoded?['message'] as String? ??
+          'Server mengembalikan error (HTTP ${response.statusCode})',
+      'data': null,
+    };
   }
 }

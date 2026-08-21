@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { getAllTransports, updateStatus, deleteTransport, connectWebSocket } from '../services/api.js';
+import { STATUS_DALAM_PERJALANAN, STATUS_DITERIMA } from '../constants.js';
 import StatusChip from './StatusChip.jsx';
 import ConfirmDialog from './ConfirmDialog.jsx';
 
@@ -25,7 +26,7 @@ export default function Dashboard() {
       setTransports(result.data);
       setError(null);
     } else {
-      setError(result.message);
+      setError(result.message ?? 'Gagal mengambil data');
     }
     setLoading(false);
   }, []);
@@ -53,32 +54,28 @@ export default function Dashboard() {
     };
   }, [fetchData]);
 
-  const handleTerima = async (t) => {
-    setUpdatingId(t.id);
-    const res = await updateStatus(t.id, 'DITERIMA');
-    setUpdatingId(null);
+  const runMutation = async (setPendingId, id, mutation, onSuccess) => {
+    setPendingId(id);
+    const res = await mutation();
+    setPendingId(null);
     if (res.success) {
-      fetchData();
+      onSuccess();
     } else {
       alert(res.message);
     }
   };
+
+  const handleTerima = (t) =>
+    runMutation(setUpdatingId, t.id, () => updateStatus(t.id, STATUS_DITERIMA), fetchData);
 
   const handleDeleteRequest = (t) => {
     setConfirmDelete(t);
   };
 
-  const handleDeleteConfirm = async () => {
+  const handleDeleteConfirm = () => {
     const t = confirmDelete;
     setConfirmDelete(null);
-    setDeletingId(t.id);
-    const res = await deleteTransport(t.id);
-    setDeletingId(null);
-    if (res.success) {
-      fetchData();
-    } else {
-      alert(res.message);
-    }
+    runMutation(setDeletingId, t.id, () => deleteTransport(t.id), fetchData);
   };
 
   // --- Loading ---
@@ -129,7 +126,7 @@ export default function Dashboard() {
           </thead>
           <tbody>
             {transports.map((t, i) => {
-              const isDalamPerjalanan = t.status === 'DALAM_PERJALANAN';
+              const isDalamPerjalanan = t.status === STATUS_DALAM_PERJALANAN;
               return (
                 <tr key={t.id}>
                   <td>{i + 1}</td>

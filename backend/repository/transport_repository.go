@@ -1,18 +1,24 @@
 package repository
 
 import (
+	"errors"
+
 	"pelacakan-fruit-transport/model"
 
 	"github.com/google/uuid"
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 )
+
+// ErrNotFound is returned when a transport record does not exist.
+var ErrNotFound = errors.New("transport not found")
 
 // TransportRepository defines the contract for transport data access.
 type TransportRepository interface {
 	Create(transport *model.Transport) error
 	FindAll() ([]model.Transport, error)
 	FindByID(id uuid.UUID) (*model.Transport, error)
-	UpdateStatus(id uuid.UUID, status string) error
+	UpdateStatus(id uuid.UUID, status string) (*model.Transport, error)
 	Delete(id uuid.UUID) error
 }
 
@@ -42,6 +48,9 @@ func (r *transportRepository) FindAll() ([]model.Transport, error) {
 func (r *transportRepository) FindByID(id uuid.UUID) (*model.Transport, error) {
 	var transport model.Transport
 	err := r.db.First(&transport, "id = ?", id).Error
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return nil, ErrNotFound
+	}
 	if err != nil {
 		return nil, err
 	}
@@ -55,19 +64,23 @@ func (r *transportRepository) Delete(id uuid.UUID) error {
 		return result.Error
 	}
 	if result.RowsAffected == 0 {
-		return gorm.ErrRecordNotFound
+		return ErrNotFound
 	}
 	return nil
 }
 
-// UpdateStatus updates the status field of a transport record.
-func (r *transportRepository) UpdateStatus(id uuid.UUID, status string) error {
-	result := r.db.Model(&model.Transport{}).Where("id = ?", id).Update("status", status)
+// UpdateStatus updates the status field of a transport record and returns the updated record.
+func (r *transportRepository) UpdateStatus(id uuid.UUID, status string) (*model.Transport, error) {
+	var transport model.Transport
+	result := r.db.Model(&transport).
+		Clauses(clause.Returning{}).
+		Where("id = ?", id).
+		Update("status", status)
 	if result.Error != nil {
-		return result.Error
+		return nil, result.Error
 	}
 	if result.RowsAffected == 0 {
-		return gorm.ErrRecordNotFound
+		return nil, ErrNotFound
 	}
-	return nil
+	return &transport, nil
 }

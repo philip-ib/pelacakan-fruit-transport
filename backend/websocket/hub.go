@@ -35,8 +35,8 @@ func (h *Hub) HandleConnection(c *websocket.Conn) {
 	}
 }
 
-// Broadcast sends a message to all connected clients.
-func (h *Hub) Broadcast(message []byte) {
+// broadcast sends a message to all connected clients.
+func (h *Hub) broadcast(message []byte) {
 	h.mu.Lock()
 	defer h.mu.Unlock()
 
@@ -51,5 +51,5 @@ func (h *Hub) Broadcast(message []byte) {
 
 // NotifyChange broadcasts a "data_changed" event after any mutation.
 func NotifyChange() {
-	DefaultHub.Broadcast([]byte(`{"event":"data_changed"}`))
+	DefaultHub.broadcast([]byte(`{"event":"data_changed"}`))
 }
