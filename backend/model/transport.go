@@ -7,13 +7,19 @@ import (
 	"gorm.io/gorm"
 )
 
+// Status constants for Transport.
+const (
+	StatusDalamPerjalanan = "DALAM_PERJALANAN"
+	StatusDiterima        = "DITERIMA"
+)
+
 // Transport represents a fruit transport record from TPH to PKS.
 type Transport struct {
-	ID            uuid.UUID `gorm:"type:uuid;primaryKey;default:gen_random_uuid()" json:"id"`
+	ID            uuid.UUID `gorm:"type:uuid;primaryKey" json:"id"`
 	NomorTruk     string    `gorm:"type:varchar(100);not null" json:"nomor_truk"`
 	IDTPH         string    `gorm:"type:varchar(50);not null" json:"id_tph"`
 	BeratEstimasi float64   `gorm:"type:decimal(10,2);not null" json:"berat_estimasi"`
-	Status        string    `gorm:"type:varchar(50);default:DALAM_PERJALANAN" json:"status"`
+	Status        string    `gorm:"type:varchar(50)" json:"status"`
 	CreatedAt     time.Time `gorm:"autoCreateTime" json:"created_at"`
 	UpdatedAt     time.Time `gorm:"autoUpdateTime" json:"updated_at"`
 }
@@ -23,13 +29,13 @@ func (Transport) TableName() string {
 	return "transports"
 }
 
-// BeforeCreate hook ensures the transport has a UUID before being persisted.
+// BeforeCreate hook ensures the transport has a UUID and a status before being persisted.
 func (t *Transport) BeforeCreate(tx *gorm.DB) error {
 	if t.ID == uuid.Nil {
 		t.ID = uuid.New()
 	}
 	if t.Status == "" {
-		t.Status = "DALAM_PERJALANAN"
+		t.Status = StatusDalamPerjalanan
 	}
 	return nil
 }

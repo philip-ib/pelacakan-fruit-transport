@@ -1,44 +1,26 @@
 const BASE_URL = '/api/v1';
 
-export async function getAllTransports() {
+async function request(path, { method = 'GET', body } = {}) {
   try {
-    const res = await fetch(`${BASE_URL}/transports`);
+    const res = await fetch(`${BASE_URL}${path}`, {
+      method,
+      headers: body ? { 'Content-Type': 'application/json' } : undefined,
+      body: body ? JSON.stringify(body) : undefined,
+    });
     const json = await res.json();
-    if (json.success && json.data) {
-      return { success: true, data: json.data };
-    }
-    return { success: false, message: json.message || 'Gagal mengambil data' };
+    return { success: json.success === true, message: json.message ?? null, data: json.data ?? null };
   } catch (e) {
     return { success: false, message: `Gagal terhubung ke server: ${e.message}` };
   }
 }
 
-export async function updateStatus(id, status) {
-  try {
-    const res = await fetch(`${BASE_URL}/transports/${id}/status`, {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ status }),
-    });
-    const json = await res.json();
-    return { success: json.success, message: json.message };
-  } catch (e) {
-    return { success: false, message: `Gagal terhubung ke server: ${e.message}` };
-  }
-}
+export const getAllTransports = () => request('/transports');
 
-export async function deleteTransport(id) {
-  try {
-    const res = await fetch(`${BASE_URL}/transports/${id}`, {
-      method: 'DELETE',
-      headers: { 'Content-Type': 'application/json' },
-    });
-    const json = await res.json();
-    return { success: json.success, message: json.message };
-  } catch (e) {
-    return { success: false, message: `Gagal terhubung ke server: ${e.message}` };
-  }
-}
+export const updateStatus = (id, status) =>
+  request(`/transports/${id}/status`, { method: 'PATCH', body: { status } });
+
+export const deleteTransport = (id) =>
+  request(`/transports/${id}`, { method: 'DELETE' });
 
 export function connectWebSocket(onMessage) {
   const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';

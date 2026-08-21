@@ -66,8 +66,10 @@ pelacakan_fruit_transport/
 │   ├── pubspec.yaml
 │   └── lib/
 │       ├── main.dart
-│       ├── models/transport.dart
 │       ├── services/api_service.dart
+│       ├── widgets/
+│       │   ├── form_text_field.dart
+│       │   └── result_dialog.dart
 │       └── screens/supir_form_screen.dart
 └── frontend_dashboard/             # React Web (Admin PKS)
     ├── package.json
@@ -77,6 +79,7 @@ pelacakan_fruit_transport/
         ├── main.jsx
         ├── App.jsx
         ├── App.css
+        ├── constants.js
         ├── services/api.js
         └── components/
             ├── Dashboard.jsx
